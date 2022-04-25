@@ -1,5 +1,6 @@
 import pandas as pd
 import pyttsx3
+import shutil
 import speech_recognition as sr
 from tkinter import *
 
@@ -9,17 +10,19 @@ engine = pyttsx3.init()
 windows = Tk()
 windows.geometry("1600x900")
 windows.title("Voice Based Attendence System")
+
 lable7 = Label(text="Voice Based Attendence System", foreground="gray", padx=10, pady=10, font=("Calibri", 35, "bold"))
 lable7.pack()
 
 lable8 = Label(windows, text="    Instructions    ", font=("Algerian", 20), foreground="gray22")
 lable8.place(x=100, y=125)
 
-
 s = "1- Press the mic icon to start taking attendence.\n       2- To add a new student click \"Add Student\" button"
 lable9 = Label(text=s, font=("Times", 15))
 lable9.place(x=0, y=200)
 pic = PhotoImage(file="mic2.png")
+
+
 
 def add_student():
     windows = Tk()
@@ -35,15 +38,15 @@ def add_student():
 
 
         if(enroll != "" and se != "" and name != "" and state != ""):
-            df = pd.read_csv(r'attendence.csv')
+            df = pd.read_csv(r'attendence/attendence.csv')
             df2 = pd.DataFrame({'Enrollment Number': [enroll], 'SE Number': [se], 'Name': [name], 'Status': [state]})
             df = pd.concat([df, df2], ignore_index=True, axis=0)
-            df.to_csv("attendence.csv", index=False)
+            df.to_csv("attendence/attendence.csv", index=False)
 
-            df = pd.read_csv(r'attendence.csv')
+            df = pd.read_csv(r'attendence/attendence.csv')
             df1 = df.loc[:, df.columns != "Index Number"]
             sorted_df = df1.sort_values(by=["Name"], ascending=True)
-            sorted_df.to_csv("attendence.csv", index=False)
+            sorted_df.to_csv("attendence/attendence.csv", index=False)
 
             lable6 = Label(windows, text="Added Successfully")
             lable6.place(x=350, y=315)
@@ -60,17 +63,17 @@ def add_student():
 
         text3 = Text(windows, width=70, height=25)
         text3.pack()
-        with open("attendence.csv", "r") as f:
+        with open("attendence/attendence.csv", "r") as f:
             data = f.read()
             text3.insert("1.0", data)
 
     def remove():
-        df = pd.read_csv(r'attendence.csv')
+        df = pd.read_csv(r'attendence/attendence.csv')
         df.set_index('Enrollment Number', inplace=True)
         df.head()
         en = entry1.get()
         df.drop(en, axis=1, inplace=False)
-        df.to_csv("attendence.csv", index=False)
+        df.to_csv("attendence/attendence.csv", index=False)
         lable6 = Label(windows, text="Removed Successfully")
         lable6.place(x=350, y=315)
 
@@ -107,27 +110,27 @@ def add_student():
         #se = input("SE No.: ")
         #name = input("Name: ")
         #state = input("Status: ")
-        #df = pd.read_csv(r'attendence.csv')
+        #df = pd.read_csv(r'attendence/attendence.csv')
         #df2 = pd.DataFrame({'Enrollment Number': [enroll], 'SE Number': [se], 'Name': [name], 'Status': [state]})
         #df = pd.concat([df, df2], ignore_index=True, axis=0)
-        #df.to_csv("attendence.csv", index=False)
+        #df.to_csv("attendence/attendence.csv", index=False)
 
-        #df = pd.read_csv(r'attendence.csv')
+        #df = pd.read_csv(r'attendence/attendence.csv')
         #df1 = df.loc[:, df.columns != "Index Number"]
         #sorted_df = df1.sort_values(by=["Name"], ascending=True)
-        #sorted_df.to_csv("attendence.csv", index=False)
+        #sorted_df.to_csv("attendence/attendence.csv", index=False)
 
-#    df = pd.read_csv(r'attendence.csv')
+#    df = pd.read_csv(r'attendence/attendence.csv')
 #    df.reset_index(level=0, inplace=True)
-#    df.to_csv("attendence.csv", index=False)
+#    df.to_csv("attendence/attendence.csv", index=False)
 
 def start_attendence():
     count = 0
-    df = pd.read_csv(r'attendence.csv')
+    df = pd.read_csv(r'attendence/attendence.csv')
     enroll = df['SE Number'].tolist()
     enrollno = df['Enrollment Number'].tolist()
     df['Status'] = 0
-    df.to_csv('attendence.csv', index=False)
+    df.to_csv('attendence/attendence.csv', index=False)
 
     for i in range(len(enroll)):
         engine.setProperty("rate", 180)
@@ -162,7 +165,7 @@ def start_attendence():
 
                     if "present" in text1 or "yes" in text1:
                         df.loc[i, 'Status'] = 1
-                        df.to_csv("attendence.csv", index=False)
+                        df.to_csv("attendence/attendence.csv", index=False)
                         k = False
                         count += 1
                         text2.insert(END,"\nAttendence Marked.\n")
