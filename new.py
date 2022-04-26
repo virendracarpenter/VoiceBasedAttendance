@@ -1,4 +1,5 @@
 import pandas as pd
+from pandasgui import show
 import os
 import pyttsx3
 import shutil
@@ -71,10 +72,12 @@ def add_student():
             lable6.place(x=350, y=315)
 
     def print():
-        windows = Tk()
-        windows.geometry("800x450")
-        windows.resizable(False, False)
-        windows.title("Attendence Sheet")
+        #windows = Tk()
+        #windows.geometry("800x450")
+        #windows.resizable(False, False)
+        #windows.title("Attendence Sheet")
+        df = pd.read_csv(dst_dir)
+        show(df)
 
         text3 = Text(windows, width=70, height=25)
         text3.pack()
