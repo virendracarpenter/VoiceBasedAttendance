@@ -1,11 +1,14 @@
+import tkinter
+from turtle import showturtle
 import pandas as pd
-from pandasgui import show
 import os
+from pandasgui import show
 import pyttsx3
 import shutil
 import datetime
 import speech_recognition as sr
 from tkinter import *
+#from .vba import main
 
 r = sr.Recognizer()
 engine = pyttsx3.init()
@@ -20,7 +23,6 @@ src_dir="attendence/attendence.csv"
 dst_dir="attendence/"+"t3_"+str(now)+".csv"
 
 shutil.copy(src_dir,dst_dir)
-#dst_dir='"'+dst_dir+'"'
 
 # main window gui 
 windows = Tk()
@@ -37,7 +39,6 @@ s = "1- Press the mic icon to  start taking attendence.\n       2- To add a new 
 lable9 = Label(text=s, font=("Times", 15))
 lable9.place(x=0, y=200)
 pic = PhotoImage(file="mic2.png")
-
 
 
 def add_student():
@@ -72,12 +73,8 @@ def add_student():
             lable6.place(x=350, y=315)
 
     def print():
-        #windows = Tk()
-        #windows.geometry("800x450")
-        #windows.resizable(False, False)
-        #windows.title("Attendence Sheet")
-        df = pd.read_csv(dst_dir)
-        show(df)
+
+        show(pd.read_csv(dst_dir))
 
         text3 = Text(windows, width=70, height=25)
         text3.pack()
@@ -121,28 +118,8 @@ def add_student():
     button4.place(x=365, y=275)
 
     windows.mainloop()
-    #n = int(input("How many student do you want to add: "))
-    #for x in range(n):
-        #print("~~~~~~~~~~~~~Student ", x + 1, " Info~~~~~~~~~~~~~")
-        #enroll = input("Enrollment No.: ")
-        #se = input("SE No.: ")
-        #name = input("Name: ")
-        #state = input("Status: ")
-        #df = pd.read_csv(r(dst_dir))
-        #df2 = pd.DataFrame({'Enrollment Number': [enroll], 'SE Number': [se], 'Name': [name], 'Status': [state]})
-        #df = pd.concat([df, df2], ignore_index=True, axis=0)
-        #df.to_csv("(dst_dir)", index=False)
 
-        #df = pd.read_csv(r(dst_dir))
-        #df1 = df.loc[:, df.columns != "Index Number"]
-        #sorted_df = df1.sort_values(by=["Name"], ascending=True)
-        #sorted_df.to_csv("(dst_dir)", index=False)
-
-#    df = pd.read_csv(r (dst_dir)    )
-#    df.reset_index(level=0, inplace=True)
-#   )", index=False)
-
-def start_attendence():
+def take_attendance():
     count = 0
     df = pd.read_csv(dst_dir)
     enroll = df['SE Number'].tolist()
@@ -158,77 +135,55 @@ def start_attendence():
         engine.runAndWait()
         k = True
         attempt = 0
-
-        while (k and attempt < 3):
+        
+        while (k and attempt < 2):
             try:
-
                 with sr.Microphone() as source:
 
-                    engine.setProperty("rate", 120)
-                    engine.say("Speak Now")
-                    engine.runAndWait()
+                        engine.setProperty("rate", 150)
+                        engine.say("Speak Now")
+                        engine.runAndWait()
 
-                    text2.insert(END,"\n"+enrollno[i]+"\n")
+                        showText.insert(END,"\n"+enrollno[i]+" - ")
 
-                    #print("Recognizing...", end='  ')
-                    #print(enrollno[i])
+                        audio_data = r.record(source, duration=3)
+                        inputText = r.recognize_google(audio_data)
 
-                    audio_data = r.record(source, duration=3)
-                    text1 = r.recognize_google(audio_data)
+                        # showText.insert(END,inputText)
 
-                    text2.insert(END,text1)
-                    #lable1 = Label(text=text1)
-                    #lable1.pack()
-                    #print(text)
-
-                    if "present" in text1 or "yes" in text1:
-                        df.loc[i, 'Status'] = 1
-                        df.to_csv(dst_dir, index=False)
-                        k = False
-                        count += 1
-                        text2.insert(END,"\nAttendence Marked.\n")
-                        #lable6 = Label(text = "Attendence Marked.")
-                        #lable6.pack()
-                    elif "absent" in text1 or "no" in text1:
-                        # df.loc[i, 'Status'] = 0
-                        k = False
-                    else:
-                        attempt += 1
-                        tot1 = str(3-attempt)
-                        text2.insert(END,"\nAttempt Left" + tot1)
-                        #lable2 = Label(text="Attempt Left" + 3 - attempt)
-                        #lable2.pack()
-                        #print("Attempt Left", 3 - attempt)
+                        if "present" in inputText or "yes" in inputText:
+                            df.loc[i, 'Status'] = 1
+                            df.to_csv(dst_dir, index=False)
+                            count += 1
+                            showText.insert(END,"Present\n")
+                            k = False
+                        elif "absent" in inputText or "no" in inputText:
+                            showText.insert(END,"Absent\n")
+                            k = False
+                        else:
+                            attempt += 1
+                            # tot1 = str(2-attempt)
+                            # showText.insert(END,"\nAttempt Left" + tot1)
+                            
             except sr.RequestError as e:
+                tkinter.messagebox.showwarning(title='warning', message="Could not request results\nInternet Connection Slow")
 
-                text2.insert(END,"\nCould not request results\nInternet Connection Slow; {0}".format(e))
-                #lable3 = Label(text="Could not request results\nInternet Connection Slow; {0}".format(e))
-                #lable3.pack()
-                #print("Could not request results\nInternet Connection Slow; {0}".format(e))
-
-# for retry 3 times 
             except sr.UnknownValueError:
                 attempt += 1
-                if attempt < 3:
-                    tot3 = str(3-attempt)
-                    text2.insert(END,"\nTry Again\nAttempt Left"+ tot3)
-                    #lable4 = Label(text="Try Again\nAttempt Left"+ 3 - attempt)
-                    #lable4.pack()
-                    #print("Try Again\nAttempt Left", 3 - attempt)
-
+                if attempt == 1:
+                            showText.insert(END,"Absent\n")
+                # if attempt < 2:
+                    # tot3 = str(2-attempt)
+                    # showText.insert(END,"\nTry Again\nAttempt Left"+ tot3)
     tot = str(count)
-    text2.insert(END,"\nNumbers of students present = "+ tot)
-   # lable5 = Label(text="Numbers of students present = "+ tot)
-    #lable5.pack()
-    #print("Numbers of students present = ", count)
+    showText.insert(END,"\nNumbers of students present = "+ tot)
 
+startAttendanceButton = Button(image=pic, width=200, height=210, borderwidth=0, command= take_attendance)
+startAttendanceButton.place(x=150, y=350)
 
-button = Button(image=pic, width=200, height=210, borderwidth=0, command= start_attendence)
-button.place(x=150, y=350)
-button1 = Button(text="Add/Remove Students", width=20, height=5, borderwidth=10, command= add_student)
-button1.place(x=165, y=600)
-text2 = Text(windows, width=100,height=40)
-text2.place(x=600, y=100)
+addStudentButton = Button(text="Add/Remove Students", width=20, height=5, borderwidth=10, command= add_student)
+addStudentButton.place(x=165, y=600)
+showText = Text(windows, width=100,height=40)
+showText.place(x=600, y=100)
 
 windows.mainloop()
-
