@@ -73,13 +73,8 @@ def add_student():
             lable6.place(x=350, y=315)
 
     def print():
-        # windows = Tk()
-        # windows.geometry("800x450")
-        # windows.resizable(False, False)
-        # windows.title("Attendence Sheet")
 
-        df = pd.read_csv(dst_dir)
-        show(df)
+        show(pd.read_csv(dst_dir))
 
         text3 = Text(windows, width=70, height=25)
         text3.pack()
@@ -145,7 +140,7 @@ def take_attendance():
             try:
                 with sr.Microphone() as source:
 
-                        engine.setProperty("rate", 120)
+                        engine.setProperty("rate", 150)
                         engine.say("Speak Now")
                         engine.runAndWait()
 
@@ -168,7 +163,7 @@ def take_attendance():
                         else:
                             attempt += 1
                             # tot1 = str(2-attempt)
-                            # showText.insert(END,"\nAttempt Left" + tot1)        
+                            # showText.insert(END,"\nAttempt Left" + tot1)
                             
             except sr.RequestError as e:
                 tkinter.messagebox.showwarning(title='warning', message="Could not request results\nInternet Connection Slow")
